@@ -1,58 +1,59 @@
 <template>
   <div class="recommend">
-    <div class="swiper-container">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide" v-for="slider in Sliders" :key="slider.id">
-          <img style="width: 100%" :src="slider.picUrl" />
-        </div>
+    <div class="slider-wrapper">
+      <div class="slider-content">
+        <slider v-if="recommendData">
+          <div v-for="item in recommendData" :key="item.id">
+            <a :href="item.linkUrl">
+              <img class="" :src="item.picUrl" />
+            </a>
+          </div>
+        </slider>
       </div>
-      <div class="swiper-pagination"></div>
     </div>
   </div>
 </template>
 <script>
 import { getRecommend } from 'api/recommend.js'
-import Swiper from 'swiper'
-import 'swiper/css/swiper.css'
+import { ERR_OK } from 'api/config.js'
+import Slider from 'base/slider'
 export default {
-  name: 'Recommend',
-  components: {},
+  components: { Slider },
   data() {
     return {
-      Sliders: []
+      recommendData: null
     }
   },
   created() {
-    this.getRecommendData()
+    this._getRecommend()
   },
   methods: {
-    getRecommendData() {
-      getRecommend().then((res) => {
-        if (res.errno === 0) {
-          this.Sliders = res.data
-          setTimeout(() => {
-            new Swiper('.swiper-container', {
-              autoplay: true,
-              loop: true,
-              pagination: {
-                el: '.swiper-pagination',
-                type: 'bullets'
-              }
-            })
-          }, 20) // 浏览器17ms刷新一次
-        }
-      })
+    _getRecommend() {
+      getRecommend()
+        .then((res) => {
+          if (res.errno === ERR_OK) {
+            this.recommendData = res.data
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     }
   }
 }
 </script>
 <style lang="stylus" scoped>
-.recommend{
-  .swiper-container{
-    --swiper-theme-color: #ff6600;
-    .swiper-slide{
+.recommend
+  .slider-wrapper
+    width 100%
+    height 0
+    padding-top 40%
+    position relative
+    overflow hidden
+    .slider-content
       width 100%
-    }
-  }
-}
+      height 100%
+      position absolute
+      top 0
+      left 0
 </style>
